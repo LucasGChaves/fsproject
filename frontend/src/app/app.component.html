@@ -1,0 +1,20 @@
+<div class="h-screen bg-slate-50 flex flex-col m:overflow-hidden">
+    <app-header />
+
+
+        @if (!isHome()) {
+            <app-navbar />
+
+            <main class="flex-1 w-full justify-center p-4">
+                <router-outlet />
+            </main>
+        } @else {
+            <main class="flex-1 w-full flex items-center justify-center p-4">
+                <router-outlet />
+            </main>
+        }
+
+        <app-global-error></app-global-error>
+
+    <app-footer />
+</div>

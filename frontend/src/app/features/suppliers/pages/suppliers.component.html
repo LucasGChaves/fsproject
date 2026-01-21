@@ -1,0 +1,116 @@
+<h1 class="text-2xl font-semibold mb-6 text-center sm:text-left">Suppliers</h1>
+
+@if (loading()) {
+  <p class="text-slate-500">Loading...</p>
+} @else {
+
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+    <div class="flex justify-center sm:justify-start">
+      <button
+      class="bg-green-600 text-white px-4 h-10 rounded cursor-pointer hover:bg-green-700 w-full sm:w-auto"
+      (click)="openCreateModal()">
+        Add
+      </button>
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+        <input
+            type="text"
+            placeholder="Search suppliers..."
+            class="border rounded px-3 py-2 h-10 w-full sm:w-48 md:w-64"
+            [value]="searchTerm()"
+            (input)="searchTerm.set($any($event.target).value)"
+            (keyup.enter)="search()"
+        />
+
+        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <select
+              class="border rounded px-3 py-2 h-10 w-full sm:w-32 cursor-pointer"
+              [value]="searchType()"
+              (change)="changeSearchType($any($event.target).value)">
+              <option value="GENERAL">General</option>
+              <option value="NAME">Name</option>
+              <option value="CPF/CNPJ">CPF/CNPJ</option>
+          </select>
+  
+          <button
+          class="bg-green-600 text-white px-4 py-2 h-10 rounded cursor-pointer hover:bg-green-700 w-full sm:w-auto"
+          (click)="search()">
+            Search
+          </button>
+        </div>
+    </div>
+  </div>
+
+  @if (suppliers().length === 0) {
+    <p class="text-slate-500">No suppliers registered.</p>
+  } @else {
+    <div class="space-y-2">
+      @for (supplier of suppliers(); track supplier.id) {
+        <div
+          class="border rounded px-4 py-3 flex justify-between items-center hover:bg-slate-100 cursor-pointer"
+          (click)="openEditModal(supplier)">
+          <div class="flex-1 min-w-0">
+            <p class="font-medium truncate">{{ supplier.name }}</p>
+            <p class="text-sm text-slate-600 truncate">
+              {{ supplier.type === 'PF' ? 'CPF' : 'CNPJ' }}: {{ supplier.cpfCnpj }}
+            </p>
+          </div>
+
+          <div class="flex gap-4 ml-4 shrink-0">
+            <button
+              class="text-green-600 hover:underline cursor-pointer"
+              (click)="openCompaniesModal(supplier); $event.stopPropagation()">
+              SEE COMPANIES
+            </button>
+
+            <button
+              class="text-red-600 hover:underline cursor-pointer"
+              (click)="deleteSupplier(supplier.id); $event.stopPropagation()">
+              DELETE
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+  
+  @if (!loading() && totalPages() > 1) {
+    <div class="flex justify-between items-center mt-6 pt-4 border-t">
+      <button
+        class="px-4 py-2 border rounded hover:bg-gray-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        (click)="previousPage()"
+        [disabled]="page() === 0">
+        ← Previous
+      </button>
+
+      <span class="text-sm text-slate-600">
+        Page {{ page() + 1 }} of {{ totalPages() }}
+      </span>
+
+      <button
+        class="px-4 py-2 border rounded hover:bg-gray-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        (click)="nextPage()"
+        [disabled]="page() + 1 === totalPages()">
+        Next →
+      </button>
+    </div>
+  }
+}
+
+@if (isCreateModalOpen() || isEditModalOpen()) {
+  <app-supplier-modal
+    [open]="true"
+    [supplier]="selectedSupplier()"
+    (saved)="handleSave($event)"
+    (close)="closeCreateModal(); closeEditModal()">
+  </app-supplier-modal>
+}
+
+@if (isCompaniesModalOpen()) {
+  <app-supplier-companies-modal
+    [open]="true"
+    [supplier]="selectedSupplierForCompanies()"
+    (close)="closeCompaniesModal()">
+  </app-supplier-companies-modal>
+}

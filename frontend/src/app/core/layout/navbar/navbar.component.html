@@ -1,0 +1,7 @@
+<nav class="bg-slate-700 text-white px-6 py-4">
+    <div class="flex flex-col sm:flex-row sm:gap-3 justify-center sm:justify-start items-center md:gap-6">
+        <a routerLink="{ exact: true }">Home</a>
+        <a routerLink="/companies" [class.underline]="currentUrl() === '/companies'">Companies</a>
+        <a routerLink="/suppliers" [class.underline]="currentUrl() === '/suppliers'">Suppliers</a>
+    </div>
+</nav>
