@@ -110,4 +110,4 @@ ___
 5. When the application start running, search for the port it's using. The default is: `http://localhost:4200/`.
 
 ## Automated Unit Tests & Continuous Integration
-You can view the automated tests runned on backend when news pushes were done.
+You can view the automated tests that ran on the backend when new pushes were made here: `https://github.com/LucasGChaves/fsproject/actions`.
