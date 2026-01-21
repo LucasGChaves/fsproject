@@ -231,6 +231,10 @@ export class SupplierModalComponent {
 
     this.type.set(newType);
 
+    if (previousType !== newType) {
+      this.cpfCnpj.set('');
+    }
+
     if (previousType === 'PF' && newType === 'PJ') {
       this.rg.set('');
       this.birthdate.set('');
