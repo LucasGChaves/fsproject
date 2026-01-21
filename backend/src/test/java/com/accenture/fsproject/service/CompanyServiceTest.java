@@ -3,6 +3,7 @@ package com.accenture.fsproject.service;
 import com.accenture.fsproject.dto.cep.CepResponseDTO;
 import com.accenture.fsproject.dto.company.CompanyCreateDTO;
 import com.accenture.fsproject.dto.company.CompanyResponseDTO;
+import com.accenture.fsproject.dto.company.CompanyResponseDetailsDTO;
 import com.accenture.fsproject.dto.company.CompanyUpdateDTO;
 import com.accenture.fsproject.exception.BusinessLogicException;
 import com.accenture.fsproject.exception.ItemNotFoundException;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -88,7 +90,7 @@ public class CompanyServiceTest {
 
         when(companyRepository.findById(1L)).thenReturn(Optional.of(company));
 
-        CompanyResponseDTO response = companyService.findById(1L);
+        CompanyResponseDetailsDTO response = companyService.findById(1L);
 
         assertNotNull(response);
         assertEquals("Company A", response.name());
@@ -101,7 +103,7 @@ public class CompanyServiceTest {
     void shouldReturnNothingWhenSearchWithoutAnyMatch() {
         String query = "testing...";
 
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 5);
         Page<Company> page = Page.empty(pageable);
 
         when(companyRepository.findByNameOrCnpj(query, pageable)).thenReturn(page);
@@ -119,7 +121,7 @@ public class CompanyServiceTest {
         company.setName("Company A");
 
         Page<Company> page = new PageImpl<>(List.of(company));
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 5);
 
         when(companyRepository.findByNameOrCnpj(company.getName(), pageable)).thenReturn(page);
 
@@ -152,7 +154,7 @@ public class CompanyServiceTest {
 
         when(cepService.getCepInfo(dto.cep())).thenReturn(cepDto);
 
-        CompanyResponseDTO response = companyService.update(1L, dto);
+        CompanyResponseDetailsDTO response = companyService.update(1L, dto);
 
         assertEquals("Compania A", response.name());
     }
@@ -181,8 +183,46 @@ public class CompanyServiceTest {
         when(companyRepository.save(any(Company.class)))
                 .thenAnswer(i -> i.getArgument(0));
 
-        CompanyResponseDTO response = companyService.create(dto);
+        CompanyResponseDetailsDTO response = companyService.create(dto);
 
         assertEquals("Company A", response.name());
+    }
+
+    @Test
+    void shouldFindAll() {
+        Company company = new Company();
+        company.setId(1L);
+        company.setName("Company A");
+
+        Company otherCompany = new Company();
+        otherCompany.setId(2L);
+        otherCompany.setName("Company B");
+
+        List<Company> companies = new ArrayList<>();
+        companies.add(company);
+        companies.add(otherCompany);
+
+        Page<Company> page = new PageImpl<>(companies);
+        Pageable pageable = PageRequest.of(0, 5);
+
+        when(companyRepository.findAll(pageable)).thenReturn(page);
+
+        Page<CompanyResponseDTO> result = companyService.findAll(pageable);
+
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.getTotalElements());
+    }
+
+    @Test
+    void shouldReturnNone() {
+        Page<Company> page = Page.empty();
+        Pageable pageable = PageRequest.of(0, 5);
+
+        when(companyRepository.findAll(pageable)).thenReturn(page);
+
+        Page<CompanyResponseDTO> result = companyService.findAll(pageable);
+
+        assertTrue(result.isEmpty());
+        assertEquals(0, result.getTotalElements());
     }
 }

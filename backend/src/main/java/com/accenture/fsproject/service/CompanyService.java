@@ -2,6 +2,7 @@ package com.accenture.fsproject.service;
 
 import com.accenture.fsproject.dto.company.CompanyCreateDTO;
 import com.accenture.fsproject.dto.company.CompanyResponseDTO;
+import com.accenture.fsproject.dto.company.CompanyResponseDetailsDTO;
 
 import com.accenture.fsproject.dto.company.CompanyUpdateDTO;
 import com.accenture.fsproject.dto.supplier.SupplierSummaryDTO;
@@ -39,6 +40,22 @@ public class CompanyService {
     private final CepService cepService;
 
     private CompanyResponseDTO toCompanyResponseDTO(Company company) {
+        Set<Long> suppliersIds = company.getSuppliers()
+                .stream()
+                .map(Supplier::getId)
+                .collect(Collectors.toSet());
+
+        return new CompanyResponseDTO(
+                company.getId(),
+                company.getName(),
+                company.getCnpj(),
+                company.getCep(),
+                company.getUf(),
+                suppliersIds
+        );
+    }
+
+    private CompanyResponseDetailsDTO toCompanyResponseDetailsDTO(Company company) {
         Set<SupplierSummaryDTO> suppliers = company.getSuppliers().stream().map(
                 supplier -> new SupplierSummaryDTO(
                         supplier.getName(),
@@ -52,7 +69,7 @@ public class CompanyService {
                 )
         ).collect(Collectors.toSet());
 
-        return new CompanyResponseDTO(
+        return new CompanyResponseDetailsDTO(
                 company.getId(),
                 company.getName(),
                 company.getCnpj(),
@@ -66,10 +83,11 @@ public class CompanyService {
         return Period.between(birthdate, LocalDate.now()).getYears();
     }
 
-    private void validateParanaSupplierCondition(Set<Supplier> suppliers) {
+    private void validateParanaSupplierCondition(FederativeUnit uf, Set<Supplier> suppliers) {
+        if (uf != FederativeUnit.PR) return;
+
         Set<Supplier> notValidSuppliers = suppliers.stream()
                 .filter(supplier -> supplier.getType() == SupplierType.PF
-                        && supplier.getUf() == FederativeUnit.PR
                         && (getPfSupplierAge(supplier.getBirthdate()) < 18))
                 .collect(Collectors.toSet());
 
@@ -79,7 +97,7 @@ public class CompanyService {
         }
     }
 
-    public CompanyResponseDTO create(CompanyCreateDTO dto) {
+    public CompanyResponseDetailsDTO create(CompanyCreateDTO dto) {
 
         if (companyRepository.existsByCnpj(dto.cnpj())) {
             throw new IllegalArgumentException("Company with this CNPJ already exists");
@@ -99,22 +117,28 @@ public class CompanyService {
         if (dto.suppliersIds() != null && !dto.suppliersIds().isEmpty()) {
             Set<Supplier> suppliers = new HashSet<>(supplierRepository.findAllById(dto.suppliersIds()));
 
-            validateParanaSupplierCondition(suppliers);
+            validateParanaSupplierCondition(company.getUf(), suppliers);
 
             company.setSuppliers(suppliers);
         }
 
         Company saved = companyRepository.save(company);
-        return toCompanyResponseDTO(saved);
+        return toCompanyResponseDetailsDTO(saved);
     }
 
     @Transactional(readOnly = true)
-    public CompanyResponseDTO findById(Long id) {
-        Company company = companyRepository.findById(id).orElseThrow(() -> new ItemNotFoundException("Company not found"));
-        return toCompanyResponseDTO(company);
+    public Page<CompanyResponseDTO> findAll(Pageable pageable) {
+        Page<Company> response = companyRepository.findAll(pageable);
+        return response.map(this::toCompanyResponseDTO);
     }
 
-    public CompanyResponseDTO update(Long id, CompanyUpdateDTO dto) {
+    @Transactional(readOnly = true)
+    public CompanyResponseDetailsDTO findById(Long id) {
+        Company company = companyRepository.findById(id).orElseThrow(() -> new ItemNotFoundException("Company not found"));
+        return toCompanyResponseDetailsDTO(company);
+    }
+
+    public CompanyResponseDetailsDTO update(Long id, CompanyUpdateDTO dto) {
         Company company = companyRepository.findById(id).orElseThrow(() -> new ItemNotFoundException("Company not found"));
 
         if (dto.name() != null) company.setName(dto.name());
@@ -129,13 +153,13 @@ public class CompanyService {
         if (dto.suppliersIds() != null && !dto.suppliersIds().isEmpty()) {
             Set<Supplier> suppliers = new HashSet<>(supplierRepository.findAllById(dto.suppliersIds()));
 
-            validateParanaSupplierCondition(suppliers);
+            validateParanaSupplierCondition(company.getUf(), suppliers);
 
             company.getSuppliers().clear();
             company.setSuppliers(suppliers);
         }
 
-        return toCompanyResponseDTO(company);
+        return toCompanyResponseDetailsDTO(company);
     }
 
     public void delete(Long id) {

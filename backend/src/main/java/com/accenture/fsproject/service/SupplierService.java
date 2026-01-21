@@ -3,6 +3,7 @@ package com.accenture.fsproject.service;
 import com.accenture.fsproject.dto.company.CompanySummaryDTO;
 import com.accenture.fsproject.dto.supplier.SupplierCreateDTO;
 import com.accenture.fsproject.dto.supplier.SupplierResponseDTO;
+import com.accenture.fsproject.dto.supplier.SupplierResponseDetailsDTO;
 import com.accenture.fsproject.dto.supplier.SupplierUpdateDTO;
 import com.accenture.fsproject.exception.BusinessLogicException;
 import com.accenture.fsproject.exception.ItemNotFoundException;
@@ -35,6 +36,23 @@ public class SupplierService {
     private final CepService cepService;
 
     private SupplierResponseDTO toSupplierResponseDTO(Supplier supplier) {
+        Set<Long> companiesIds = supplier.getCompanies().stream().map(Company::getId).collect(Collectors.toSet());
+
+        return new SupplierResponseDTO(
+                supplier.getId(),
+                supplier.getName(),
+                supplier.getType(),
+                supplier.getCpfCnpj(),
+                supplier.getRg(),
+                supplier.getBirthdate(),
+                supplier.getEmail(),
+                supplier.getCep(),
+                supplier.getUf(),
+                companiesIds
+        );
+    }
+
+    private SupplierResponseDetailsDTO toSupplierResponseDetailsDTO(Supplier supplier) {
         Set<CompanySummaryDTO> companies = supplier.getCompanies().stream().map(
                 company -> new CompanySummaryDTO(
                         company.getName(),
@@ -44,7 +62,7 @@ public class SupplierService {
                 )
         ).collect(Collectors.toSet());
 
-        return new SupplierResponseDTO(
+        return new SupplierResponseDetailsDTO(
                 supplier.getId(),
                 supplier.getName(),
                 supplier.getType(),
@@ -66,7 +84,7 @@ public class SupplierService {
         }
     }
 
-    public SupplierResponseDTO create(SupplierCreateDTO dto) {
+    public SupplierResponseDetailsDTO create(SupplierCreateDTO dto) {
 
         if (supplierRepository.existsByCpfCnpj(dto.cpfCnpj())) {
             throw new IllegalArgumentException("Company with this CPF/CNPJ already exists.");
@@ -100,19 +118,25 @@ public class SupplierService {
         }
 
         Supplier saved = supplierRepository.save(supplier);
-        return toSupplierResponseDTO(saved);
+        return toSupplierResponseDetailsDTO(saved);
     }
 
     @Transactional(readOnly = true)
-    public SupplierResponseDTO findById(Long id) {
+    public Page<SupplierResponseDTO> findAll(Pageable pageable) {
+        Page<Supplier> response = supplierRepository.findAll(pageable);
+        return response.map(this::toSupplierResponseDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public SupplierResponseDetailsDTO findById(Long id) {
         Supplier supplier =  supplierRepository
                 .findById(id)
                 .orElseThrow(() -> new ItemNotFoundException("Supplier not found"));
 
-        return toSupplierResponseDTO(supplier);
+        return toSupplierResponseDetailsDTO(supplier);
     }
 
-    public SupplierResponseDTO update(Long id, SupplierUpdateDTO dto) {
+    public SupplierResponseDetailsDTO update(Long id, SupplierUpdateDTO dto) {
         Supplier supplier = supplierRepository
                 .findById(id)
                 .orElseThrow(() -> new ItemNotFoundException("Supplier not found"));
@@ -140,7 +164,7 @@ public class SupplierService {
             }
         }
 
-        return toSupplierResponseDTO(supplier);
+        return toSupplierResponseDetailsDTO(supplier);
     }
 
     public void delete(Long id) {

@@ -7,7 +7,7 @@ import com.accenture.fsproject.model.enums.SupplierType;
 import java.time.LocalDate;
 import java.util.Set;
 
-public record SupplierResponseDTO(
+public record SupplierResponseDetailsDTO(
         Long id,
         String name,
         SupplierType type,

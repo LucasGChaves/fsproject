@@ -35,20 +35,17 @@ public final class CpfCnpjValidator {
         }
 
         int sum = 0;
-        int mod = 0;
-        boolean firstValid = false;
-        boolean secondValid = false;
 
         for (int i = 10; i >= 2; i--) {
             sum += Character.getNumericValue(digits.charAt(10 - i)) * i;
         }
 
         sum *= 10;
-        mod = sum % 11;
+        int mod = sum % 11;
 
         if (mod == 10) mod = 0;
 
-        firstValid = (char)(mod + '0') == digits.charAt(9);
+        if((char)(mod + '0') != digits.charAt(9)) return false;
 
         sum = 0;
 
@@ -62,9 +59,7 @@ public final class CpfCnpjValidator {
 
         if (mod == 10) mod = 0;
 
-        secondValid = (char)(mod + '0') == digits.charAt(10);
-
-        return firstValid && secondValid;
+        return (char)(mod + '0') == digits.charAt(10);
     }
 
     private static boolean validCnpj(String cnpj) {
@@ -78,25 +73,23 @@ public final class CpfCnpjValidator {
 
         int[] weights = {5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2};
         int sum = 0;
-        int mod = 0;
-        boolean firstValid = false;
-        boolean secondValid = false;
 
         for (int i=0; i<12; i++) {
             sum += Character.getNumericValue(digits.charAt(i)) * weights[i];
         }
 
-        mod = sum % 11;
+        int mod = sum % 11;
 
         if (mod == 0 || mod == 1) mod = 0;
         else mod = 11 - mod;
 
-        firstValid = (char)(mod + '0') == digits.charAt(12);
-        sum = 0;
-        sum += Character.getNumericValue(digits.charAt(0)) * 6;
+        if((char)(mod + '0') != digits.charAt(12)) return false;
 
-        for (int i=1; i<12; i++) {
-            sum += Character.getNumericValue(digits.charAt(i)) * weights[i-1];
+        int[] weights2 = {6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2};
+        sum = 0;
+
+        for (int i = 0; i < 13; i++) {
+            sum += Character.getNumericValue(digits.charAt(i)) * weights2[i];
         }
 
         mod = sum % 11;
@@ -104,9 +97,7 @@ public final class CpfCnpjValidator {
         if (mod == 0 || mod == 1) mod = 0;
         else mod = 11 - mod;
 
-        secondValid = (char)(mod + '0') == digits.charAt(13);
-
-        return firstValid && secondValid;
+        return (char)(mod + '0') == digits.charAt(13);
     }
 
     private static boolean isAllSame(String s) {

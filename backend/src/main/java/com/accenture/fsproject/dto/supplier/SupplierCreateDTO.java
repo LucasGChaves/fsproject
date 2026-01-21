@@ -20,11 +20,9 @@ public record SupplierCreateDTO(
         @Size(min = 11, max = 14, message = "\"CPF/CNPJ\" must have either 11 or 14 digits.")
         String cpfCnpj,
 
-        @NotNull(message = "\"RG\" is required.")
         @Size(min=7, max = 11, message = "RG must have at least 7 digits, and at most 11 digits")
         String rg,
 
-        @NotNull(message = "\"Birthdate\" is required.")
         @Past(message = "Birthdate must be in the past")
         @JsonFormat(pattern = "dd/MM/yyyy")
         LocalDate birthdate,
