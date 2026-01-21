@@ -1,12 +1,3 @@
-// export interface Company {
-//   id: number;
-//   name: string;
-//   cnpj: string;
-//   cep: string;
-//   uf: string;
-//   suppliersIds: number[];
-// }
-
 import { FederativeUnit } from "../../../shared/models/federative-units.model";
 import { Supplier, SupplierSummary } from "../../suppliers/models/suppliers.model";
 

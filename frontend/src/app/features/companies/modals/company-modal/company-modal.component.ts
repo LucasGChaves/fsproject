@@ -20,44 +20,6 @@ import { CompanyService } from '../../../../services/company/company.service';
   styleUrl: './company-modal.component.css',
 })
 export class CompanyModalComponent {
-  
-//   private readonly ALL_SUPPLIERS_MOCK: Supplier[] = [
-//   { 
-//     id: 1, 
-//     name: 'João Silva', 
-//     type: 'PF',
-//     cpfCnpj: '12345678901',
-//     email: "email@teste",
-//     rg: "00000000",
-//     birthdate: "01/01/2000",
-//     cep: '01001000',
-//     uf: 'SP',
-//     companies: [],
-//     companiesIds: []
-//   },
-//   { 
-//     id: 2, 
-//     name: 'Distribuidora Rápida ME', 
-//     type: 'PJ',
-//     cpfCnpj: '99888777000166',
-//     email: "email@teste.com",
-//     cep: '40080000',
-//     uf: 'BA',
-//     companies: [],
-//     companiesIds: []
-//   },
-//   { 
-//     id: 3, 
-//     name: 'Fornecedor Extra LTDA', // ← não selecionado
-//     type: 'PJ',
-//     cpfCnpj: '11222333000199',
-//     email: "email@teste.com",
-//     cep: '30140071',
-//     uf: 'MG',
-//     companies: [],
-//     companiesIds: []
-//   }
-// ];
 
   private readonly supplierService = inject(SupplierService);
   private readonly cepService = inject(CepService);
@@ -112,10 +74,6 @@ export class CompanyModalComponent {
       this.cnpj.set(company.cnpj);
       this.cep.set(company.cep);
       this.uf.set(company.uf);
-      
-      // if(company.id === 10) {
-      //   company.suppliersIds = [1,2];
-      // }
 
       if (company.suppliersIds && company.suppliersIds.length > 0) {
         this.selectedSupplierIds.set(company.suppliersIds);

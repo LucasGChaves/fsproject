@@ -20,7 +20,6 @@ export class CepService {
     getUfByCep(cep: string): Observable<CepResponse> {
       const cleanCep = cep.replace(/\D/g, '');
       
-      // Verifica se tem 8 dígitos
       if (cleanCep.length !== 8) {
         return of({ uf: '' as FederativeUnit, notFound: true });
       }

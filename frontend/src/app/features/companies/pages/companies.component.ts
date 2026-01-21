@@ -99,32 +99,6 @@ export class CompaniesComponent {
     }
   }
 
-  // private applySearch(
-  //   companies: Company[],
-  //   query: string,
-  //   type: 'GENERAL' | 'NAME' | 'CPF/CNPJ'
-  // ): Company[] {
-  //   if (!query.trim()) return companies;
-
-  //   const lower = query.toLowerCase();
-
-  //   return companies.filter(company => {
-  //     switch (type) {
-  //       case 'NAME':
-  //         return company.name.toLowerCase().includes(lower);
-
-  //       case 'CPF/CNPJ':
-  //         return company.cnpj.includes(query);
-
-  //       default:
-  //         return (
-  //           company.name.toLowerCase().includes(lower) ||
-  //           company.cnpj.includes(query)
-  //         );
-  //     }
-  //   });
-  // }
-
   search() {
     this.page.set(0);
     this.fetchCompanies();
@@ -135,12 +109,6 @@ export class CompaniesComponent {
     this.page.set(0);
     this.fetchCompanies();
   }
-
-  // handleCreate(company: any) {
-  //   // futuramente: POST backend
-  //   console.log(company);
-  //   this.fetchCompanies();
-  // }
 
   openCreateModal() {
     this.isCreateModalOpen.set(true);

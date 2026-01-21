@@ -26,10 +26,6 @@ export class CompanyService {
     return this.http.get<Page<Company>>(`${this.API}/search`, {params});
   }
 
-  // getById(id: number): Observable<Company> {
-  //   return this.http.get<Company>(`${this.API}/${id}`);
-  // }
-
   getById(id: number): Observable<Company> {
   if (id === 10) {
     return of({
